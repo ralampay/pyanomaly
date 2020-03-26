@@ -4,14 +4,15 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 from modules.train import Train
+from modules.normalize import Normalize
 
 def usage():
     print("python -m pyanomaly --mode [training] <options>")
 
 parser  = argparse.ArgumentParser(description="Pyanomaly: Autoencoder based anomaly detector")
-parser.add_argument("--mode", choices=["training"], help="Mode to run. Possible values: training", required=True)
-parser.add_argument("--input", help="Input csv file (Required if mode is training)")
-parser.add_argument("--output", help="Output model (Required if mode is training)")
+parser.add_argument("--mode", choices=["training", "normalize"], help="Mode to run. Possible values: training, normalize", required=True)
+parser.add_argument("--input", help="Input csv file (Required if mode is training or normalize)")
+parser.add_argument("--output", help="Output model (Required if mode is training) | Output normalized data (Required if mode is normalize)")
 parser.add_argument("--epochs", help="Number of epochs (Required if mode is training)", type=int)
 parser.add_argument("--lr", type=float, help="Learning rate")
 parser.add_argument("--batch_size", type=int, help="Batch size")
@@ -24,6 +25,23 @@ args    = parser.parse_args()
 
 if __name__ == '__main__':
     mode    = args.mode
+
+    if mode == "normalize":
+        input_file  = args.input
+        output_file = args.output
+
+        if not input_file:
+            print("Error! Normalize mode requires --input value")
+            parser.print_help()
+            sys.exit(0)
+
+        if not output_file:
+            print("Error! Normalize mode requires --output value")
+            parser.print_help()
+            sys.exit(0)
+
+        cmd = Normalize(input_file, output_file)
+        cmd.execute()
 
     if mode == "training":
         input_file      = args.input
