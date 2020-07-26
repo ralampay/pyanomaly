@@ -44,7 +44,7 @@ class DeepAutoencoder:
         self.autoencoder    = models.Sequential()
 
         # Input to Hidden
-        for i, c in enumerate(self.config["encoding_layers"]):
+        for i, c in enumerate(self.config["encoding_layers"][1:]):
             if i == 0:
                 self.autoencoder.add(
                     layers.Dense(
@@ -64,7 +64,7 @@ class DeepAutoencoder:
                 )
         
         # Hidden to Output
-        for i, c in enumerate(self.config["decoding_layers"][1:]):
+        for i, c in enumerate(self.config["decoding_layers"][1:(len(self.config["decoding_layers"]) - 1)]):
             self.autoencoder.add(
                 layers.Dense(
                     c["size"],
@@ -73,6 +73,7 @@ class DeepAutoencoder:
                 )
             )
 
+        # Output layer
         self.autoencoder.add(
             layers.Dense(
                 self.config["input_size"],
@@ -84,7 +85,7 @@ class DeepAutoencoder:
         # Encoder
         self.encoder = models.Sequential()
 
-        for i, c in enumerate(self.config["encoding_layers"]):
+        for i, c in enumerate(self.config["encoding_layers"][1:]):
             if i == 0:
                 self.encoder.add(
                     layers.Dense(
@@ -106,11 +107,16 @@ class DeepAutoencoder:
         # Decoder
         self.decoder = models.Sequential()
         for i, c in enumerate(self.config["decoding_layers"][1:]):
+            activation = c["activation"]
+
+            if i == (len(self.config["decoding_layers"][1:]) - 1):
+                activation = self.o_activation
+
             if i == 0:
                 self.decoder.add(
                     layers.Dense(
                         c["size"],
-                        activation=c["activation"],
+                        activation=activation,
                         input_shape=(self.config["encoding_layers"][-1]["size"],),
                         bias_initializer=Constant(value=self.bias)
                     )
@@ -119,29 +125,11 @@ class DeepAutoencoder:
                 self.decoder.add(
                     layers.Dense(
                         c["size"],
-                        activation=c["activation"],
+                        activation=activation,
                         bias_initializer=Constant(value=self.bias)
                     )
                 )
 
-        
-        if len(self.config["decoding_layers"]) == 0:
-            self.decoder.add(
-                layers.Dense(
-                    self.config["input_size"],
-                    activation=self.config["o_activation"],
-                    input_shape=(self.config["encoding_layers"][-1]["size"],),
-                    bias_initializer=Constant(value=self.bias)
-                )
-            )
-        else:
-            self.decoder.add(
-                layers.Dense(
-                    self.config["input_size"],
-                    activation=self.config["o_activation"],
-                    bias_initializer=Constant(value=self.bias)
-                )
-            )
 
     def init_encoder(self):
         for i in range(len(self.encoder.layers)):

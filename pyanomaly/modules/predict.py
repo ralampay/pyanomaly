@@ -9,19 +9,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from lib.deep_autoencoder import DeepAutoencoder
 from modules.utils import create_histogram
 
-class Train:
-    def __init__(self, input_file, output_file, epochs, lr, batch_size, loss, layers, h_activation, o_activation, save_config=False):
+class Predict:
+    def __init__(self, input_file, model_file, layers, h_activation, o_activation, bias=1):
         self.input_file         = input_file
+        self.model_file         = model_file
         self.df_input           = pd.read_csv(input_file)
         self.df_input_no_labels = self.df_input.drop(['y'], axis=1)
-        self.df_input_negatives = self.df_input[self.df_input.y == 0].drop(['y'], axis=1)
         self.input_size         = len(self.df_input_no_labels.columns)
-        self.output_file        = output_file
-        self.epochs             = epochs
-        self.lr                 = lr
-        self.batch_size         = batch_size
-        self.loss               = loss
-        self.bias               = 1
         self.h_activation       = h_activation
         self.o_activation       = o_activation
         self.column_names       = self.df_input_no_labels.columns
@@ -30,7 +24,7 @@ class Train:
         self.num_records        = self.df_shape[0]
         self.labels             = self.df_input['y'].values
         self.raw_values         = self.df_input_no_labels.values
-        self.save_config        = save_config
+        self.bias               = bias
 
         # Convert to list of strings then to list of ints
         self.layers  = [int(i) for i in layers.split(",")]
@@ -41,16 +35,16 @@ class Train:
             "h_activation": self.h_activation,
             "optimizer": {
                 "name": "adam",
-                "learning_rate": self.lr,
+                "learning_rate": 0.001,
                 "momentum": 0.0,
                 "decay": 0.0
             },
             "encoding_layers": [],
             "decoding_layers": [],
-            "epochs": self.epochs,
-            "loss": self.loss,
+            "epochs": 0,
+            "loss": "mse",
             "bias": self.bias,
-            "batch_size": self.batch_size
+            "batch_size": 1
         }
 
     def execute(self):
@@ -67,15 +61,7 @@ class Train:
 
         # Setup decoding layers
         decoding_layers = []
-
-        # Add the last layer of encoding
-        decoding_layers.append({
-            "size": encoding_layers[-1]["size"],
-            "activation": self.h_activation,
-            "bias": self.bias
-        })
-
-        for i in list(reversed(self.layers))[1:]:
+        for i in list(reversed(self.layers)):
             decoding_layers.append({
                 "size": i,
                 "activation": self.h_activation,
@@ -86,13 +72,10 @@ class Train:
 
         self.autoencoder = DeepAutoencoder(self.config)
         self.autoencoder.compile()
-        print("Autoencoder Summary")
-        print("=======================")
         self.autoencoder.summary()
-        print("=======================")
 
-        # Start training
-        self.autoencoder.train(self.df_input_no_labels)
+        # Load model
+        self.autoencoder.load_model(self.model_file)
 
         # Compute for score
         self.reconstructed_data         = self.autoencoder.predict(self.df_input_no_labels.values)
@@ -139,6 +122,3 @@ class Train:
         plt.title('Histogram of Residual Errors')
         plt.grid(True)
         plt.show()
-
-        print("Saving to file", self.output_file)
-        self.autoencoder.save(self.output_file)
