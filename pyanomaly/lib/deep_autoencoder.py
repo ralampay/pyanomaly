@@ -1,13 +1,15 @@
 import json
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 
 from sys import argv
-from keras import models
-from keras.models import load_model
-from keras import layers
-from keras import optimizers
-from keras.initializers import Constant
+from tensorflow import keras
+from tensorflow.keras import models
+from tensorflow.keras.models import load_model
+from tensorflow.keras import layers
+from tensorflow.keras import optimizers
+from tensorflow.keras.initializers import Constant
 
 class DeepAutoencoder:
     DEFAULT_CONFIG = {
