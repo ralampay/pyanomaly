@@ -111,14 +111,14 @@ class Predict:
         print("Occurences Stdev:", self.occurences_sigma)
 
         # Plot
-        labels = []
-        for i in range(len(self.bins) - 1):
-            labels.append(str(self.bins[i]) + "-" + str(self.bins[i + 1]))
-        index = np.arange(len(labels))
-        plt.bar(index, self.occurences)
-        plt.xlabel('Error')
-        plt.ylabel('Occurences')
-        plt.xticks(index, labels, fontsize=5)
-        plt.title('Histogram of Residual Errors')
-        plt.grid(True)
-        plt.show()
+#        labels = []
+#        for i in range(len(self.bins) - 1):
+#            labels.append(str(self.bins[i]) + "-" + str(self.bins[i + 1]))
+#        index = np.arange(len(labels))
+#        plt.bar(index, self.occurences)
+#        plt.xlabel('Error')
+#        plt.ylabel('Occurences')
+#        plt.xticks(index, labels, fontsize=5)
+#        plt.title('Histogram of Residual Errors')
+#        plt.grid(True)
+#        plt.show()

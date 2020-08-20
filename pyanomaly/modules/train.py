@@ -75,7 +75,12 @@ class Train:
             "bias": self.bias
         })
 
-        for i in list(reversed(self.layers))[1:]:
+        for index, i in enumerate(list(reversed(self.layers))[1:]):
+            activation = self.h_activation
+
+            if index == (len(self.layers) - 1):
+                activation = self.o_activation
+
             decoding_layers.append({
                 "size": i,
                 "activation": self.h_activation,
@@ -128,17 +133,20 @@ class Train:
         print("Occurences Stdev:", self.occurences_sigma)
 
         # Plot
-        labels = []
-        for i in range(len(self.bins) - 1):
-            labels.append(str(self.bins[i]) + "-" + str(self.bins[i + 1]))
-        index = np.arange(len(labels))
-        plt.bar(index, self.occurences)
-        plt.xlabel('Error')
-        plt.ylabel('Occurences')
-        plt.xticks(index, labels, fontsize=5)
-        plt.title('Histogram of Residual Errors')
-        plt.grid(True)
-        plt.show()
+#        labels = []
+#        for i in range(len(self.bins) - 1):
+#            labels.append(str(self.bins[i]) + "-" + str(self.bins[i + 1]))
+#        index = np.arange(len(labels))
+#        plt.bar(index, self.occurences)
+#        plt.xlabel('Error')
+#        plt.ylabel('Occurences')
+#        plt.xticks(index, labels, fontsize=5)
+#        plt.title('Histogram of Residual Errors')
+#        plt.grid(True)
+#        plt.show()
 
         print("Saving to file", self.output_file)
         self.autoencoder.save(self.output_file)
+
+        print("Load model", self.output_file)
+        self.autoencoder.load_model(self.output_file)
