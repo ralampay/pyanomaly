@@ -2,6 +2,7 @@ pyanomaly/data
 pyanomaly/models
 
 notebooks/logs
+notebooks/.ipynb_checkpoints
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

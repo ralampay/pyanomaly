@@ -8,7 +8,7 @@ from modules.normalize import Normalize
 from modules.predict import Predict
 
 def usage():
-    print("python -m pyanomaly --mode [training] <options>")
+    print("python -m pyanomaly --mode [training|normalize|predict] <options>")
 
 parser  = argparse.ArgumentParser(description="Pyanomaly: Autoencoder based anomaly detector")
 parser.add_argument("--mode", choices=["training", "normalize", "predict"], help="Mode to run. Possible values: training, normalize", required=True)
